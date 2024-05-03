@@ -1,38 +1,22 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from .routes import r0944736_endpoints  # Update import statement
+from fastapi import FastAPI
+from routes import r0929445_endpoints
+import config
+from fastapi.middleware.cors import CORSMiddleware
 
-import os
+app = FastAPI(docs_url=config.documentation_url)
 
+origins = config.cors_origins.split(",")
 
-# Create a FastAPI app instance
-app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=[""],
+    allow_headers=[""],
+)
 
-# Include the router from endpoints.py
-app.include_router(r0944736_endpoints.router)
+app.include_router(r0929445_endpoints.app, prefix="/r0929445")
 
-
-# Create a SQLAlchemy engine
-SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL")
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-# Create a session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Dependency to get a database session for each request
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Define your routes here
 @app.get("/")
-def root(db=Depends(get_db)):
-    # Use the database session (db) to interact with your models
-    # Example: query the database using your models
-    # result = db.query(YourModel).all()
-    return {"message": "Hello, World!"}
+def root():
+    return {"message": "hello world!"}

@@ -1,10 +1,35 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import mysql.connector
+import config
 
-SQLALCHEMY_DATABASE_URL = "your_database_url"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+def connect_to_database():
+    try:
+        connection = mysql.connector.connect(host=config.db_hostname, user=config.db_username, password=config.db_password)
+        return connection
+    except mysql.connector.Error as error:
+        print("Error connecting to database:", error)
+        return error
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def execute_sql_query(sql_query, query_parameters = None):
+    connection = connect_to_database()
+    result=''
+    try:
+        cursor = connection.cursor()
+        cursor.execute(sql_query, query_parameters)
+        if sql_query.upper().startswith("SELECT"):
+            result = cursor.fetchall()
+        else:
+            connection.commit()
+            result = True
 
-Base = declarative_base()
+        cursor.close()
+
+    except mysql.connector.Error as exception:
+        print("Error executing SQL query:", exception)
+        result = exception
+
+
+    finally:
+        if connection.is_connected():
+            connection.close()
+
+        return result
