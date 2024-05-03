@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from routes import r0944736_endpoints
 import config
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,8 +13,6 @@ app.add_middleware(
     allow_methods=[""],
     allow_headers=[""],
 )
-
-app.include_router(r0944736_endpoints.app, prefix="/r0944736")
 
 @app.get("/")
 def root():
